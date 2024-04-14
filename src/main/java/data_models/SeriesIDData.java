@@ -1,6 +1,7 @@
 package data_models;
 
 public class SeriesIDData {
+    private String seriesID;
     private String prefix;
     private String seasonalAdjustmentCode;
     private String stateCode;
@@ -37,7 +38,14 @@ public class SeriesIDData {
         this.dataTypeText = dataTypeText;
     }
 
-    // Getters and Setters
+    public String getSeriesID() {
+        return seriesID;
+    }
+
+    public void setSeriesID(String seriesID) {
+        this.seriesID = seriesID;
+    }
+
     public String getPrefix() {
         return prefix;
     }

@@ -1,5 +1,7 @@
 package decoder_files;
 
+import bls.Series;
+import data_models.SeriesIDData;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.NumberToTextConverter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -17,11 +19,12 @@ public class SeriesIDDecoder {
     private static final Map<String, String> dataTypeCodeLookup = new HashMap<>();
     private static Sheet sheet;
 
-    public static void main(String[] args) throws IOException {
-        loadLookupTables("src/main/java/decoder_files/smu_decoder_file.xlsx");
-//        decodeSeriesID("SMU0900000550000000202");
-          decodeSeriesID("SMU09000005500000002");
-    }
+//    public static void main(String[] args) throws IOException {
+//
+////        loadLookupTables("src/main/java/decoder_files/smu_decoder_file.xlsx");
+//////        decodeSeriesID("SMU0900000550000000202");
+////          decodeSeriesID("SMU09000005500000002");
+//    }
 
     private static void loadLookupTables(String filePath) throws IOException {
         FileInputStream file = new FileInputStream(filePath);
@@ -60,7 +63,8 @@ public class SeriesIDDecoder {
         }
     }
 
-    private static void decodeSeriesID(String seriesId) {
+    public static SeriesIDData decodeSeriesID(String seriesId) throws IOException {
+        loadLookupTables("src/main/java/decoder_files/smu_decoder_file.xlsx");
         String stateCode = safeSubstring(seriesId, 3, 5); // Extracting State Code from positions 4-5
         String areaCode = safeSubstring(seriesId, 5, 10); // Extracting Area Code from positions 6-10
         String supersectorCode = safeSubstring(seriesId, 10, 12); // Corrected to extract just the supersector part (positions 11-12)
@@ -73,24 +77,25 @@ public class SeriesIDDecoder {
         industryCode = industryCode.trim();
         dataTypeCode = dataTypeCode.trim();
 
-        String stateName = stateCodeLookup.getOrDefault(removeLeadingZero(stateCode), "Unknown");
-        String areaName = areaCodeLookup.getOrDefault(removeLeadingZero(areaCode), "Unknown");
-        String supersectorName = supersectorCodeLookup.getOrDefault(supersectorCode, "Unknown");
-        String industryName = industryCodeLookup.getOrDefault(industryCode, "Unknown");
-        String dataTypeText = dataTypeCodeLookup.getOrDefault(removeLeadingZero(dataTypeCode), "Unknown");
-        System.out.println(areaCodeLookup.size());
-        System.out.println("State Code: " + stateCode + ", State Name: " + stateName);
-        System.out.println("Area Code: " + areaCode + ", Area Name: " + areaName);
-        System.out.println("Supersector Code: " + supersectorCode + ", Supersector Name: " + supersectorName);
-        System.out.println("Industry Code: " + industryCode + ", Industry Name: " + industryName);
-        System.out.println("Data Type Code: " + dataTypeCode + ", Data Type Text: " + dataTypeText);
-
+        SeriesIDData seriesIDData = new SeriesIDData();
+        seriesIDData.setSeriesID(seriesId);
+        seriesIDData.setStateCode(stateCode);
+        seriesIDData.setAreaCode(areaCode);
+        seriesIDData.setSupersectorCode(supersectorCode);
+        seriesIDData.setIndustryCode(removeLeadingZero(industryCode));
+        seriesIDData.setDataTypeCode(dataTypeCode);
+        seriesIDData.setStateName(stateCodeLookup.getOrDefault(removeLeadingZero(stateCode), "Unknown"));
+        seriesIDData.setAreaName(areaCodeLookup.getOrDefault(removeLeadingZero(areaCode), "Unknown"));
+        seriesIDData.setSupersectorName(supersectorCodeLookup.getOrDefault(removeLeadingZero(supersectorCode), "Unknown"));
+        seriesIDData.setIndustryName(industryCodeLookup.getOrDefault(removeLeadingZero(industryCode), "Unknown"));
+        seriesIDData.setDataTypeText(dataTypeCodeLookup.getOrDefault(removeLeadingZero(dataTypeCode), "Unknown"));
+        return seriesIDData;
     }
 
 
     private static String removeLeadingZero(String code) {
         code = code.replaceFirst("^0+(?!$)", ""); // Trim leading zeros
-        System.out.println(code);
+//        System.out.println(code);
         return code;
     }
 
