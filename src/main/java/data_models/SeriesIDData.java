@@ -4,6 +4,7 @@ public class SeriesIDData {
     private String seriesID;
     private String prefix;
     private String seasonalAdjustmentCode;
+    private String seasonalAdjustmentText;
     private String stateCode;
     private String stateName;
     private String areaCode;
@@ -52,6 +53,14 @@ public class SeriesIDData {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
+    }
+
+    public String getSeasonalAdjustmentText() {
+        return seasonalAdjustmentText;
+    }
+
+    public void setSeasonalAdjustmentText(String seasonalAdjustmentText) {
+        this.seasonalAdjustmentText = seasonalAdjustmentText;
     }
 
     public String getSeasonalAdjustmentCode() {

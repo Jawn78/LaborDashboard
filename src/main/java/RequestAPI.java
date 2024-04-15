@@ -69,19 +69,21 @@ public class RequestAPI {
             // Create headers
             Row header = sheet.createRow(0);
             header.createCell(0).setCellValue("Series ID");
-            header.createCell(1).setCellValue("State Code");
-            header.createCell(2).setCellValue("State");
-            header.createCell(3).setCellValue("Area Code");
-            header.createCell(4).setCellValue("Area");
-            header.createCell(5).setCellValue("Supersector Code");
-            header.createCell(6).setCellValue("Supersector");
-            header.createCell(7).setCellValue("Industry Code");
-            header.createCell(8).setCellValue("Industry");
-            header.createCell(9).setCellValue("Data Type Code");
-            header.createCell(10).setCellValue("Data Type");
-            header.createCell(11).setCellValue("Year");
-            header.createCell(12).setCellValue("Period");
-            header.createCell(13).setCellValue("Value");
+            header.createCell(1).setCellValue("Seasonally Adjusted Code");
+            header.createCell(2).setCellValue("Seasonally Adjusted Text");
+            header.createCell(3).setCellValue("State Code");
+            header.createCell(4).setCellValue("State");
+            header.createCell(5).setCellValue("Area Code");
+            header.createCell(6).setCellValue("Area");
+            header.createCell(7).setCellValue("Supersector Code");
+            header.createCell(8).setCellValue("Supersector");
+            header.createCell(9).setCellValue("Industry Code");
+            header.createCell(10).setCellValue("Industry");
+            header.createCell(11).setCellValue("Data Type Code");
+            header.createCell(12).setCellValue("Data Type");
+            header.createCell(13).setCellValue("Year");
+            header.createCell(14).setCellValue("Period");
+            header.createCell(15).setCellValue("Value");
 
             int rowNum = 1;
 
@@ -91,19 +93,21 @@ public class RequestAPI {
                     String seriesID = series.getSeriesID();
                     SeriesIDData seriesData = decodeSeriesID(seriesID);
                     row.createCell(0).setCellValue(seriesData.getSeriesID());
-                    row.createCell(1).setCellValue(seriesData.getStateCode());
-                    row.createCell(2).setCellValue(seriesData.getStateName());
-                    row.createCell(3).setCellValue(seriesData.getAreaCode());
-                    row.createCell(4).setCellValue(seriesData.getAreaName());
-                    row.createCell(5).setCellValue(seriesData.getSupersectorCode());
-                    row.createCell(6).setCellValue(seriesData.getSupersectorName());
-                    row.createCell(7).setCellValue(seriesData.getIndustryCode());
-                    row.createCell(8).setCellValue(seriesData.getIndustryName());
-                    row.createCell(9).setCellValue(seriesData.getDataTypeCode());
-                    row.createCell(10).setCellValue(seriesData.getDataTypeText());
-                    row.createCell(11).setCellValue(dataPoint.getYear());
-                    row.createCell(12).setCellValue(dataPoint.getPeriod());
-                    row.createCell(13).setCellValue(dataPoint.getValue());
+                    row.createCell(1).setCellValue(seriesData.getSeasonalAdjustmentCode());
+                    row.createCell(2).setCellValue(seriesData.getSeasonalAdjustmentText());
+                    row.createCell(3).setCellValue(seriesData.getStateCode());
+                    row.createCell(4).setCellValue(seriesData.getStateName());
+                    row.createCell(5).setCellValue(seriesData.getAreaCode());
+                    row.createCell(6).setCellValue(seriesData.getAreaName());
+                    row.createCell(7).setCellValue(seriesData.getSupersectorCode());
+                    row.createCell(8).setCellValue(seriesData.getSupersectorName());
+                    row.createCell(9).setCellValue(seriesData.getIndustryCode());
+                    row.createCell(10).setCellValue(seriesData.getIndustryName());
+                    row.createCell(11).setCellValue(seriesData.getDataTypeCode());
+                    row.createCell(12).setCellValue(seriesData.getDataTypeText());
+                    row.createCell(13).setCellValue(dataPoint.getYear());
+                    row.createCell(14).setCellValue(dataPoint.getPeriod());
+                    row.createCell(15).setCellValue(dataPoint.getValue());
                 }
             }
 

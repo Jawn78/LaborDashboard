@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SeriesIDDecoder {
+    private static final Map<String, String> seasonallyAdjustedLookup = new HashMap<>();
     private static final Map<String, String> stateCodeLookup = new HashMap<>();
     private static final Map<String, String> areaCodeLookup = new HashMap<>();
     private static final Map<String, String> supersectorCodeLookup = new HashMap<>();
@@ -32,11 +33,12 @@ public class SeriesIDDecoder {
         sheet = workbook.getSheetAt(0);
         for (Row row : sheet) {
             if (row.getRowNum() == 0) continue; // Skip header row
-            stateCodeLookup.put(getCellValueAsString(row.getCell(0)), getCellValueAsString(row.getCell(1)));
-            areaCodeLookup.put(getCellValueAsString(row.getCell(2)), getCellValueAsString(row.getCell(3)));
-            supersectorCodeLookup.put(getCellValueAsString(row.getCell(4)), getCellValueAsString(row.getCell(5)));
-            industryCodeLookup.put(getCellValueAsString(row.getCell(6)), getCellValueAsString(row.getCell(7)));
-            dataTypeCodeLookup.put(getCellValueAsString(row.getCell(8)), getCellValueAsString(row.getCell(9)));
+            seasonallyAdjustedLookup.put(getCellValueAsString(row.getCell(0)), getCellValueAsString(row.getCell(1)));
+            stateCodeLookup.put(getCellValueAsString(row.getCell(2)), getCellValueAsString(row.getCell(3)));
+            areaCodeLookup.put(getCellValueAsString(row.getCell(4)), getCellValueAsString(row.getCell(5)));
+            supersectorCodeLookup.put(getCellValueAsString(row.getCell(6)), getCellValueAsString(row.getCell(7)));
+            industryCodeLookup.put(getCellValueAsString(row.getCell(8)), getCellValueAsString(row.getCell(9)));
+            dataTypeCodeLookup.put(getCellValueAsString(row.getCell(10)), getCellValueAsString(row.getCell(11)));
         }
 
         workbook.close();
@@ -65,12 +67,15 @@ public class SeriesIDDecoder {
 
     public static SeriesIDData decodeSeriesID(String seriesId) throws IOException {
         loadLookupTables("src/main/java/decoder_files/smu_decoder_file.xlsx");
+        String seasonalAdjustedCode = safeSubstring(seriesId, 2, 3);
         String stateCode = safeSubstring(seriesId, 3, 5); // Extracting State Code from positions 4-5
         String areaCode = safeSubstring(seriesId, 5, 10); // Extracting Area Code from positions 6-10
         String supersectorCode = safeSubstring(seriesId, 10, 12); // Corrected to extract just the supersector part (positions 11-12)
         String industryCode = safeSubstring(seriesId, 10, 18); // Extracting combined SuperSector and Industry Code from positions 11-18
         String dataTypeCode = safeSubstring(seriesId, 18, 20); // Extracting Data Type Code from positions 19-20
 
+        System.out.println(stateCode);
+        System.out.println(stateCodeLookup);
         stateCode = stateCode.trim();
         areaCode = areaCode.trim();
         supersectorCode = supersectorCode.trim();
@@ -80,10 +85,12 @@ public class SeriesIDDecoder {
         SeriesIDData seriesIDData = new SeriesIDData();
         seriesIDData.setSeriesID(seriesId);
         seriesIDData.setStateCode(stateCode);
+        seriesIDData.setSeasonalAdjustmentCode(seasonalAdjustedCode);
         seriesIDData.setAreaCode(areaCode);
         seriesIDData.setSupersectorCode(supersectorCode);
         seriesIDData.setIndustryCode(removeLeadingZero(industryCode));
         seriesIDData.setDataTypeCode(dataTypeCode);
+        seriesIDData.setSeasonalAdjustmentText(seasonallyAdjustedLookup.getOrDefault(seasonalAdjustedCode, "Unknown"));
         seriesIDData.setStateName(stateCodeLookup.getOrDefault(removeLeadingZero(stateCode), "Unknown"));
         seriesIDData.setAreaName(areaCodeLookup.getOrDefault(removeLeadingZero(areaCode), "Unknown"));
         seriesIDData.setSupersectorName(supersectorCodeLookup.getOrDefault(removeLeadingZero(supersectorCode), "Unknown"));
