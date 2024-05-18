@@ -24,24 +24,6 @@ public class SMSeriesIDData {
         this.monthlyValues = new HashMap<>();
     }
 
-    // Full constructor
-    public SMSeriesIDData(String prefix, String seasonalAdjustmentCode, String stateCode, String stateName,
-                          String areaCode, String areaName, String supersectorCode, String supersectorName,
-                          String industryCode, String industryName, String dataTypeCode, String dataTypeText) {
-        this.prefix = prefix;
-        this.seasonalAdjustmentCode = seasonalAdjustmentCode;
-        this.stateCode = stateCode;
-        this.stateName = stateName;
-        this.areaCode = areaCode;
-        this.areaName = areaName;
-        this.supersectorCode = supersectorCode;
-        this.supersectorName = supersectorName;
-        this.industryCode = industryCode;
-        this.industryName = industryName;
-        this.dataTypeCode = dataTypeCode;
-        this.dataTypeText = dataTypeText;
-    }
-
     public String getSeriesID() {
         return seriesID;
     }

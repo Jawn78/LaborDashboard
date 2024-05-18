@@ -16,14 +16,13 @@ import static series_id_decoder.LN_Decoder.loadSeriesData;
 
 public class ln_excel_writer {
 
-    public static void writeToExcel(Sheet sheet, bls.Response responseJSON) {
+    public static void writeToExcel(Sheet sheet, Series series) {
         try {
-
 
             // Use a map to organize data by Series ID and Year
             Map<String, Map<String, String>> seriesData = new HashMap<>();
 
-            for (Series series : responseJSON.getResults().getSeries()) {
+
                 for (Datum dataPoint : series.getData()) {
                     String key = series.getSeriesID() + "-" + dataPoint.getYear();
                     if (!seriesData.containsKey(key)) {
@@ -31,11 +30,11 @@ public class ln_excel_writer {
                     }
                     seriesData.get(key).put(dataPoint.getPeriod(), dataPoint.getValue());
                 }
-            }
 
-            // Verify the data size
-            System.out.println("Total number of series-year combinations: " + seriesData.size());
 
+            // Verify the data size & Keyset
+            System.out.println("Total number of LN series-year combinations: " + seriesData.size());
+            System.out.println("LN KeySet: " + seriesData.keySet());
             // Writing aggregated data to Excel
             int rowNum = sheet.getLastRowNum() + 1; // Ensure we're writing to a new row
             for (String key : seriesData.keySet()) {
@@ -137,9 +136,6 @@ public class ln_excel_writer {
                         String value = periodValues.getOrDefault(monthKey, "");  // Use "N/A" for missing values
                         row.createCell(75 + i).setCellValue(value);
                     }
-
-
-
                 }
             }
         } catch (Exception e) {

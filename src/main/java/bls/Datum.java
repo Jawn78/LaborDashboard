@@ -1,6 +1,7 @@
 
 package bls;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import com.google.gson.annotations.Expose;
@@ -27,6 +28,7 @@ public class Datum implements Serializable
     @SerializedName("footnotes")
     @Expose
     private List<Footnote> footnotes;
+    @Serial
     private final static long serialVersionUID = 2677139181736111300L;
 
     public String getYear() {

@@ -13,14 +13,13 @@ import static decoder_files.sm_series_id_decoder.decodeSeriesID;
 
 public class sm_excel_writer {
 
-    public static void writeToExcel(Sheet sheet, bls.Response responseJSON) {
+    public static void writeToExcel(Sheet sheet, Series series) {
         try {
 
 
             // Use a map to organize data by Series ID and Year
             Map<String, Map<String, String>> seriesData = new HashMap<>();
 
-            for (Series series : responseJSON.getResults().getSeries()) {
                 for (Datum dataPoint : series.getData()) {
                     String key = series.getSeriesID() + "-" + dataPoint.getYear();
                     if (!seriesData.containsKey(key)) {
@@ -28,11 +27,10 @@ public class sm_excel_writer {
                     }
                     seriesData.get(key).put(dataPoint.getPeriod(), dataPoint.getValue());
                 }
-            }
 
             // Verify the data size
-            System.out.println("Total number of series-year combinations: " + seriesData.size());
-
+            System.out.println("Total number of series-year SM combinations: " + seriesData.size());
+            System.out.println("SM KeySet: " + seriesData.keySet());
             // Writing aggregated data to Excel
             int rowNum = sheet.getLastRowNum() + 1; // Ensure we're writing to a new row
             for (String key : seriesData.keySet()) {

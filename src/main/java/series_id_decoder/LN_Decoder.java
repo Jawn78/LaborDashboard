@@ -2,65 +2,37 @@ package series_id_decoder;
 
 import com.github.pjfanning.xlsx.StreamingReader;
 import data_models.LNSeriesIDData;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.util.IOUtils;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.StreamSupport;
 
 public class LN_Decoder {
-
     public static Map<String, LNSeriesIDData> loadSeriesData(String filePath) {
-        Map<String, LNSeriesIDData> seriesDataMap = new HashMap<>();
-        try (InputStream is = new FileInputStream(new File(filePath))) {
+        Map<String, LNSeriesIDData> seriesDataMap = new ConcurrentHashMap<>();  // Use ConcurrentHashMap for thread safety
+        try (InputStream is = new FileInputStream(filePath)) {
             Workbook workbook = StreamingReader.builder()
-                    .rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
-                    .bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
-                    .open(is);            // open directly with InputStream
-            Sheet sheet = workbook.getSheetAt(0);  // directly accessing the first sheet
-            for (Row r : sheet) {
-                Cell cell = r.getCell(0);
-                if (cell != null && cell.getStringCellValue() != null) {
-                    String seriesId = cell.getStringCellValue().trim();
-                    seriesDataMap.put(seriesId, mapRowToLNSeriesIDData(r));
-                }
-            }
+                    .rowCacheSize(100)
+                    .bufferSize(4096)
+                    .open(is);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            StreamSupport.stream(sheet.spliterator(), true) // Create a parallel stream
+                    .filter(r -> r.getCell(0) != null && r.getCell(0).getStringCellValue() != null)
+                    .forEach(r -> {
+                        String seriesId = r.getCell(0).getStringCellValue().trim();
+                        seriesDataMap.put(seriesId, mapRowToLNSeriesIDData(r));
+                    });
         } catch (Exception e) {
             e.printStackTrace();
         }
         return seriesDataMap;
     }
-
-
-//    public static Map<String, LNSeriesIDData> loadSeriesData(String filePath) {
-//        Map<String, LNSeriesIDData> seriesDataMap = new HashMap<>();
-//        try (OPCPackage pkg = OPCPackage.open(new File(filePath));
-//             Workbook workbook = XSSFWorkbookFactory.createWorkbook(pkg)) {
-//            Sheet sheet = workbook.getSheetAt(0);
-//            boolean isHeader = true;
-//            for (Row row : sheet) {
-//                if (isHeader) {
-//                    isHeader = false;
-//                    continue;
-//                }
-//                Cell cell = row.getCell(0);
-//                if (cell != null && cell.getCellType() == CellType.STRING) {
-//                    String seriesId = cell.getStringCellValue().trim();
-//                    seriesDataMap.put(seriesId, mapRowToLNSeriesIDData(row));
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return seriesDataMap;
-//    }
 
     public static LNSeriesIDData getSeriesData(String seriesId, Map<String, LNSeriesIDData> seriesDataMap) {
         return seriesDataMap.getOrDefault(seriesId, new LNSeriesIDData());
@@ -145,5 +117,9 @@ public class LN_Decoder {
         data.setEnd_period(row.getCell(73).getStringCellValue());
         return data;
     }
+
+
+
+
 }
 
