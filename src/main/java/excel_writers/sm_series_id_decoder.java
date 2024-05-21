@@ -1,6 +1,6 @@
-package decoder_files;
+package excel_writers;
 
-import data_models.SMSeriesIDData;
+import data_models.BLS_Data_Models.SMSeriesIDData;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.NumberToTextConverter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -58,7 +58,7 @@ public class sm_series_id_decoder {
     }
 
     public static SMSeriesIDData decodeSeriesID(String seriesId) throws IOException {
-        loadLookupTables("src/main/java/decoder_files/smu_decoder_file.xlsx");
+        loadLookupTables("src/main/java/excel_decoder_files/smu_decoder_file.xlsx");
         String seasonalAdjustedCode = safeSubstring(seriesId, 2, 3);
         String stateCode = safeSubstring(seriesId, 3, 5); // Extracting State Code from positions 4-5
         String areaCode = safeSubstring(seriesId, 5, 10); // Extracting Area Code from positions 6-10

@@ -1,7 +1,7 @@
-package series_id_decoder;
+package series_id_utils.exel_decoders;
 
 import com.github.pjfanning.xlsx.StreamingReader;
-import data_models.LNSeriesIDData;
+import data_models.BLS_Data_Models.LNSeriesIDData;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;

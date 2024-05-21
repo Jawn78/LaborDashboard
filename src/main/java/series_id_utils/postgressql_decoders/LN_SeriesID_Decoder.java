@@ -1,5 +1,6 @@
-package util;
-import data_models.LNSeriesIDData;
+package series_id_utils.postgressql_decoders;
+import data_models.BLS_Data_Models.LNSeriesIDData;
+import data_models.Config_Models.ConfigPOJO;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,8 +8,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static util.Config.Manager.getConfig;
 
-public class checkdb {
+
+public class LN_SeriesID_Decoder {
 
     public static LNSeriesIDData main(String seriesIdToFind) {
         LNSeriesIDData data = null;
@@ -18,13 +21,10 @@ public class checkdb {
             e.printStackTrace();
             System.exit(1);
         }
-//        bls_decoders.public.ln_decoder_file
-        String url = "jdbc:postgresql://192.168.50.214/bls_decoders";
-        String user = "blsuser";
-        String password = "P@$$w0rd";
-        // Set the actual series ID you are looking for
 
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        ConfigPOJO appConfig = getConfig();
+
+        try (Connection conn = DriverManager.getConnection(appConfig.getPostgreSQLConfig().getUrl(), appConfig.getPostgreSQLConfig().getUser(), appConfig.getPostgreSQLConfig().getPassword());
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM ln_decoder_file WHERE TRIM(series_id) = TRIM(?)")) {
             stmt.setString(1, seriesIdToFind); // Set the series_id parameter in the SQL query
             ResultSet rs = stmt.executeQuery();

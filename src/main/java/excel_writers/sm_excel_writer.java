@@ -1,15 +1,15 @@
 package excel_writers;
 
-import bls.Datum;
-import bls.Series;
-import data_models.SMSeriesIDData;
+import data_models.BLS_API_Models.Datum;
+import data_models.BLS_API_Models.Series;
+import data_models.BLS_Data_Models.SMSeriesIDData;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static decoder_files.sm_series_id_decoder.decodeSeriesID;
+import static excel_writers.sm_series_id_decoder.decodeSeriesID;
 
 public class sm_excel_writer {
 

@@ -1,25 +1,25 @@
 package excel_writers;
 
-import bls.Datum;
-import bls.Series;
-import data_models.LNSeriesIDData;
-import data_models.SMSeriesIDData;
+import data_models.BLS_API_Models.Datum;
+import data_models.BLS_API_Models.Series;
+import data_models.BLS_Data_Models.LNSeriesIDData;
+import data_models.Config_Models.ConfigPOJO;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import series_id_decoder.LN_Decoder;
-import util.checkdb;
+import series_id_utils.exel_decoders.LN_Decoder;
+import util.Config.Manager;
+import series_id_utils.postgressql_decoders.LN_SeriesID_Decoder;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static decoder_files.sm_series_id_decoder.decodeSeriesID;
-import static series_id_decoder.LN_Decoder.loadSeriesData;
+import static series_id_utils.exel_decoders.LN_Decoder.loadSeriesData;
 
 public class ln_excel_writer {
-
+    static ConfigPOJO config = Manager.getConfig();
     public static void writeToExcel(Sheet sheet, Series series) {
         try {
-
+            LNSeriesIDData seriesDataObj = null;
             // Use a map to organize data by Series ID and Year
             Map<String, Map<String, String>> seriesData = new HashMap<>();
 
@@ -37,15 +37,18 @@ public class ln_excel_writer {
             System.out.println("Total number of LN series-year combinations: " + seriesData.size());
             System.out.println("LN KeySet: " + seriesData.keySet());
             // Writing aggregated data to Excel
-            int rowNum = sheet.getLastRowNum() + 1; // Ensure we're writing to a new row
+            int rowNum = sheet.getLastRowNum() + 1; // Ensure writing to a new row
             for (String key : seriesData.keySet()) {
                 Row row = sheet.createRow(rowNum++);
                 String[] parts = key.split("-");
                 String seriesID = parts[0];
                 String year = parts[1];
 
-               // LNSeriesIDData seriesDataObj = LN_Decoder.getSeriesData(seriesID,loadSeriesData("src/main/java/decoder_files/ln_decoder_file.xlsx"));
-                LNSeriesIDData seriesDataObj = checkdb.main(seriesID);
+                if(config.getUsePostgreSQL()){
+                    seriesDataObj = LN_SeriesID_Decoder.main(seriesID);
+                } else if(!config.getUsePostgreSQL()){
+                    seriesDataObj = LN_Decoder.getSeriesData(seriesID,loadSeriesData("src/main/java/excel_decoder_files/ln_decoder_file.xlsx"));
+                }
                         // Static data
                 row.createCell(0).setCellValue(seriesDataObj.getSeries_id());
                 row.createCell(1).setCellValue(seriesDataObj.getLfst_code());

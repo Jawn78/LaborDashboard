@@ -1,4 +1,4 @@
-package bls;
+package data_models.BLS_API_Models;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;

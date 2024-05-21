@@ -1,5 +1,5 @@
 
-package bls;
+package data_models.BLS_API_Models;
 
 import java.io.Serial;
 import java.io.Serializable;

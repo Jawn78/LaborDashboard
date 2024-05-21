@@ -1,4 +1,4 @@
-package data_models;
+package data_models.BLS_Data_Models;
 
 import java.util.HashMap;
 import java.util.Map;
