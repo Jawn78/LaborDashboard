@@ -7,6 +7,7 @@ import data_models.SMSeriesIDData;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import series_id_decoder.LN_Decoder;
+import util.checkdb;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,8 +44,9 @@ public class ln_excel_writer {
                 String seriesID = parts[0];
                 String year = parts[1];
 
-                LNSeriesIDData seriesDataObj = LN_Decoder.getSeriesData(seriesID,loadSeriesData("src/main/java/decoder_files/ln_decoder_file.xlsx"));
-                // Static data
+               // LNSeriesIDData seriesDataObj = LN_Decoder.getSeriesData(seriesID,loadSeriesData("src/main/java/decoder_files/ln_decoder_file.xlsx"));
+                LNSeriesIDData seriesDataObj = checkdb.main(seriesID);
+                        // Static data
                 row.createCell(0).setCellValue(seriesDataObj.getSeries_id());
                 row.createCell(1).setCellValue(seriesDataObj.getLfst_code());
                 row.createCell(2).setCellValue(seriesDataObj.getPeriodicity_code());

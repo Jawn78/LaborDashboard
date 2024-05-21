@@ -10,7 +10,8 @@ import java.sql.SQLException;
 
 public class checkdb {
 
-    public static void main(String[] args) {
+    public static LNSeriesIDData main(String seriesIdToFind) {
+        LNSeriesIDData data = null;
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
@@ -21,8 +22,7 @@ public class checkdb {
         String url = "jdbc:postgresql://192.168.50.214/bls_decoders";
         String user = "blsuser";
         String password = "P@$$w0rd";
-
-        String seriesIdToFind = "LNU00022968";  // Set the actual series ID you are looking for
+        // Set the actual series ID you are looking for
 
         try (Connection conn = DriverManager.getConnection(url, user, password);
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM ln_decoder_file WHERE TRIM(series_id) = TRIM(?)")) {
@@ -32,7 +32,7 @@ public class checkdb {
             // Process the ResultSet
             if (rs.next()) {  // Check if there is at least one result
 
-                LNSeriesIDData data = new LNSeriesIDData();
+                data = new LNSeriesIDData();
 
                 data.setSeries_id(rs.getString("series_id"));
                 data.setLfst_code(rs.getString("lfst_code"));
@@ -114,11 +114,15 @@ public class checkdb {
                 System.out.println("LFST Code: " + data.getLfst_code());
                 System.out.println("Periodicity Text: " + data.getPeriodicity_text());
                 // Continue printing other fields
+
+               
             } else {
                 System.out.println("No records found matching the series ID.");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        return data;
     }
 }

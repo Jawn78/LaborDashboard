@@ -13,12 +13,18 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 public class RequestAPI {
 
-    private static final OkHttpClient client = new OkHttpClient();
+    private static final OkHttpClient client = new OkHttpClient.Builder()
+            .readTimeout(60, TimeUnit.SECONDS) // Increase read timeout
+            .connectTimeout(60, TimeUnit.SECONDS) // Increase connection timeout
+            .build();
     private static final Gson gson = new Gson();
 
     private static String readApiKey() throws IOException {
@@ -60,7 +66,13 @@ public class RequestAPI {
 
         String finalApiKey = apiKey;
         CompletableFuture<?>[] futures = partitions.stream().map(partition ->
-                CompletableFuture.runAsync(() -> processPartition(partition, finalApiKey, mediaType, sm_sheet, ln_sheet))
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        processPartition(partition, finalApiKey, mediaType, sm_sheet, ln_sheet);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                })
         ).toArray(CompletableFuture[]::new);
 
         CompletableFuture.allOf(futures).join();
@@ -78,9 +90,12 @@ public class RequestAPI {
         }
     }
 
-    private static void processPartition(List<String> partition, String apiKey, MediaType mediaType, Sheet sm_sheet, Sheet ln_sheet) {
+    private static void processPartition(List<String> partition, String apiKey, MediaType mediaType, Sheet sm_sheet, Sheet ln_sheet) throws IOException {
+        int maxAttempts = 5;
+        int attempts = 0;
+        boolean success = false;
         String seriesIdJsonArray = partition.stream().map(id -> "\"" + id + "\"").collect(Collectors.joining(", ", "[", "]"));
-        String jsonPayload = String.format("{\"seriesid\": %s, \"startyear\":\"2023\", \"endyear\":\"2024\", " +
+        String jsonPayload = String.format("{\"seriesid\": %s, \"startyear\":\"2019\", \"endyear\":\"2024\", " +
                 "\"catalog\":false, \"calculations\":false, \"annualaverage\":false, \"aspects\":false, " +
                 "\"registrationkey\":\"%s\"}", seriesIdJsonArray, apiKey);
 
@@ -90,25 +105,29 @@ public class RequestAPI {
                 .post(body)
                 .addHeader("Content-Type", "application/json")
                 .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                System.out.println("Failed to fetch data for partition: " + response);
-                return;
-            }
-            String responseString = Objects.requireNonNull(response.body()).string();
-            bls.Response responseJSON = gson.fromJson(responseString, bls.Response.class);
-            synchronized (sm_sheet) {
-                for (bls.Series series : responseJSON.getResults().getSeries()) {
-                    if (series.getSeriesID().contains("LN")) {
-                        ln_excel_writer.writeToExcel(ln_sheet, series);
-                    } else if (series.getSeriesID().contains("SM")) {
-                        sm_excel_writer.writeToExcel(sm_sheet, series);
+        while (attempts < maxAttempts && !success) {
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    System.out.println("Failed to fetch data for partition: " + response);
+                    return;
+                }
+                String responseString = Objects.requireNonNull(response.body()).string();
+                bls.Response responseJSON = gson.fromJson(responseString, bls.Response.class);
+                synchronized (sm_sheet) {
+                    for (bls.Series series : responseJSON.getResults().getSeries()) {
+                        if (series.getSeriesID().contains("LN")) {
+                            ln_excel_writer.writeToExcel(ln_sheet, series);
+                        } else if (series.getSeriesID().contains("SM")) {
+                            sm_excel_writer.writeToExcel(sm_sheet, series);
+                        }
                     }
                 }
+                success = true;
+            } catch (IOException e) {
+                attempts++;
+                if (attempts >= maxAttempts) throw e;
+                System.out.println("Retrying... Attempt " + attempts);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
