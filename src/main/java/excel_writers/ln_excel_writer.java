@@ -2,12 +2,12 @@ package excel_writers;
 
 import data_models.BLS_API_Models.Datum;
 import data_models.BLS_API_Models.Series;
-import data_models.BLS_Data_Models.LNSeriesIDData;
+import data_models.BLS_Data_Models.lnSeriesIDData;
 import data_models.Config_Models.ConfigPOJO;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import series_id_utils.exel_decoders.LN_Decoder;
-import util.Config.Manager;
+import util.config.Manager;
 import series_id_utils.postgressql_decoders.LN_SeriesID_Decoder;
 
 import java.util.HashMap;
@@ -19,7 +19,7 @@ public class ln_excel_writer {
     static ConfigPOJO config = Manager.getConfig();
     public static void writeToExcel(Sheet sheet, Series series) {
         try {
-            LNSeriesIDData seriesDataObj = null;
+            lnSeriesIDData seriesDataObj = null;
             // Use a map to organize data by Series ID and Year
             Map<String, Map<String, String>> seriesData = new HashMap<>();
 
@@ -45,85 +45,85 @@ public class ln_excel_writer {
                 String year = parts[1];
 
                 if(config.getUsePostgreSQL()){
-                    seriesDataObj = LN_SeriesID_Decoder.main(seriesID);
+                    seriesDataObj = LN_SeriesID_Decoder.decodeSeriesID(seriesID);
                 } else if(!config.getUsePostgreSQL()){
                     seriesDataObj = LN_Decoder.getSeriesData(seriesID,loadSeriesData("src/main/java/excel_decoder_files/ln_decoder_file.xlsx"));
                 }
                         // Static data
-                row.createCell(0).setCellValue(seriesDataObj.getSeries_id());
-                row.createCell(1).setCellValue(seriesDataObj.getLfst_code());
-                row.createCell(2).setCellValue(seriesDataObj.getPeriodicity_code());
-                row.createCell(3).setCellValue(seriesDataObj.getPeriodicity_text());
-                row.createCell(4).setCellValue(seriesDataObj.getSeries_title());
-                row.createCell(5).setCellValue(seriesDataObj.getAbsn_code());
-                row.createCell(6).setCellValue(seriesDataObj.getAbsn_text());
-                row.createCell(7).setCellValue(seriesDataObj.getActivity_code());
-                row.createCell(8).setCellValue(seriesDataObj.getActivity_text());
-                row.createCell(9).setCellValue(seriesDataObj.getAges_code());
-                row.createCell(10).setCellValue(seriesDataObj.getAges_text());
-                row.createCell(11).setCellValue(seriesDataObj.getCert_code());
-                row.createCell(12).setCellValue(seriesDataObj.getCert_text());
-                row.createCell(13).setCellValue(seriesDataObj.getClass_code());
-                row.createCell(14).setCellValue(seriesDataObj.getClass_text());
-                row.createCell(15).setCellValue(seriesDataObj.getDuration_code());
-                row.createCell(16).setCellValue(seriesDataObj.getDuration_text());
-                row.createCell(17).setCellValue(seriesDataObj.getEducation_code());
-                row.createCell(18).setCellValue(seriesDataObj.getEducation_text());
-                row.createCell(19).setCellValue(seriesDataObj.getEntr_code());
-                row.createCell(20).setCellValue(seriesDataObj.getEntr_text());
-                row.createCell(21).setCellValue(seriesDataObj.getExpr_code());
-                row.createCell(22).setCellValue(seriesDataObj.getExpr_text());
-                row.createCell(23).setCellValue(seriesDataObj.getHheader_code());
-                row.createCell(24).setCellValue(seriesDataObj.getHheader_text());
-                row.createCell(25).setCellValue(seriesDataObj.getHour_code());
-                row.createCell(26).setCellValue(seriesDataObj.getHour_text());
-                row.createCell(27).setCellValue(seriesDataObj.getIndy_code());
-                row.createCell(28).setCellValue(seriesDataObj.getIndy_text());
-                row.createCell(29).setCellValue(seriesDataObj.getJdes_code());
-                row.createCell(30).setCellValue(seriesDataObj.getJdes_text());
-                row.createCell(31).setCellValue(seriesDataObj.getLook_code());
-                row.createCell(32).setCellValue(seriesDataObj.getLook_text());
-                row.createCell(33).setCellValue(seriesDataObj.getMari_code());
-                row.createCell(34).setCellValue(seriesDataObj.getMari_text());
-                row.createCell(35).setCellValue(seriesDataObj.getMjhs_code());
-                row.createCell(36).setCellValue(seriesDataObj.getMjhs_text());
-                row.createCell(37).setCellValue(seriesDataObj.getOccupation_code());
-                row.createCell(38).setCellValue(seriesDataObj.getOccupation_text());
-                row.createCell(39).setCellValue(seriesDataObj.getOrig_code());
-                row.createCell(40).setCellValue(seriesDataObj.getOrig_text());
-                row.createCell(41).setCellValue(seriesDataObj.getPcts_code());
-                row.createCell(42).setCellValue(seriesDataObj.getPcts_text());
-                row.createCell(43).setCellValue(seriesDataObj.getRace_code());
-                row.createCell(44).setCellValue(seriesDataObj.getRace_text());
-                row.createCell(45).setCellValue(seriesDataObj.getRjnw_code());
-                row.createCell(46).setCellValue(seriesDataObj.getRjnw_text());
-                row.createCell(47).setCellValue(seriesDataObj.getRnlf_code());
-                row.createCell(48).setCellValue(seriesDataObj.getRnlf_text());
-                row.createCell(49).setCellValue(seriesDataObj.getRwns_code());
-                row.createCell(50).setCellValue(seriesDataObj.getRwns_text());
-                row.createCell(51).setCellValue(seriesDataObj.getSeek_code());
-                row.createCell(52).setCellValue(seriesDataObj.getSeek_text());
-                row.createCell(53).setCellValue(seriesDataObj.getSexs_code());
-                row.createCell(54).setCellValue(seriesDataObj.getSexs_text());
-                row.createCell(55).setCellValue(seriesDataObj.getTdat_code());
-                row.createCell(56).setCellValue(seriesDataObj.getTdat_text());
-                row.createCell(57).setCellValue(seriesDataObj.getVets_code());
-                row.createCell(58).setCellValue(seriesDataObj.getVets_text());
-                row.createCell(59).setCellValue(seriesDataObj.getWkst_code());
-                row.createCell(60).setCellValue(seriesDataObj.getWkst_text());
-                row.createCell(61).setCellValue(seriesDataObj.getBorn_code());
-                row.createCell(62).setCellValue(seriesDataObj.getBorn_text());
-                row.createCell(63).setCellValue(seriesDataObj.getChld_code());
-                row.createCell(64).setCellValue(seriesDataObj.getChld_text());
-                row.createCell(65).setCellValue(seriesDataObj.getDisa_code());
-                row.createCell(66).setCellValue(seriesDataObj.getDisa_text());
+                row.createCell(0).setCellValue(seriesDataObj.getSeriesId());
+                row.createCell(1).setCellValue(seriesDataObj.getLfstCode());
+                row.createCell(2).setCellValue(seriesDataObj.getPeriodicityCode());
+                row.createCell(3).setCellValue(seriesDataObj.getPeriodicityText());
+                row.createCell(4).setCellValue(seriesDataObj.getSeriesTitle());
+                row.createCell(5).setCellValue(seriesDataObj.getAbsnCode());
+                row.createCell(6).setCellValue(seriesDataObj.getAbsnText());
+                row.createCell(7).setCellValue(seriesDataObj.getActivityCode());
+                row.createCell(8).setCellValue(seriesDataObj.getActivityText());
+                row.createCell(9).setCellValue(seriesDataObj.getAgesCode());
+                row.createCell(10).setCellValue(seriesDataObj.getAgesText());
+                row.createCell(11).setCellValue(seriesDataObj.getCertCode());
+                row.createCell(12).setCellValue(seriesDataObj.getCertText());
+                row.createCell(13).setCellValue(seriesDataObj.getClassCode());
+                row.createCell(14).setCellValue(seriesDataObj.getClassText());
+                row.createCell(15).setCellValue(seriesDataObj.getDurationCode());
+                row.createCell(16).setCellValue(seriesDataObj.getDurationText());
+                row.createCell(17).setCellValue(seriesDataObj.getEducationCode());
+                row.createCell(18).setCellValue(seriesDataObj.getEducationText());
+                row.createCell(19).setCellValue(seriesDataObj.getEntrCode());
+                row.createCell(20).setCellValue(seriesDataObj.getEntrText());
+                row.createCell(21).setCellValue(seriesDataObj.getExprCode());
+                row.createCell(22).setCellValue(seriesDataObj.getExprText());
+                row.createCell(23).setCellValue(seriesDataObj.getHheaderCode());
+                row.createCell(24).setCellValue(seriesDataObj.getHheaderText());
+                row.createCell(25).setCellValue(seriesDataObj.getHourCode());
+                row.createCell(26).setCellValue(seriesDataObj.getHourText());
+                row.createCell(27).setCellValue(seriesDataObj.getIndyCode());
+                row.createCell(28).setCellValue(seriesDataObj.getIndyText());
+                row.createCell(29).setCellValue(seriesDataObj.getJdesCode());
+                row.createCell(30).setCellValue(seriesDataObj.getJdesText());
+                row.createCell(31).setCellValue(seriesDataObj.getLookCode());
+                row.createCell(32).setCellValue(seriesDataObj.getLookText());
+                row.createCell(33).setCellValue(seriesDataObj.getMariCode());
+                row.createCell(34).setCellValue(seriesDataObj.getMariText());
+                row.createCell(35).setCellValue(seriesDataObj.getMjhsCode());
+                row.createCell(36).setCellValue(seriesDataObj.getMjhsText());
+                row.createCell(37).setCellValue(seriesDataObj.getOccupationCode());
+                row.createCell(38).setCellValue(seriesDataObj.getOccupationText());
+                row.createCell(39).setCellValue(seriesDataObj.getOrigCode());
+                row.createCell(40).setCellValue(seriesDataObj.getOrigText());
+                row.createCell(41).setCellValue(seriesDataObj.getPctsCode());
+                row.createCell(42).setCellValue(seriesDataObj.getPctsText());
+                row.createCell(43).setCellValue(seriesDataObj.getRaceCode());
+                row.createCell(44).setCellValue(seriesDataObj.getRaceText());
+                row.createCell(45).setCellValue(seriesDataObj.getRjnwCode());
+                row.createCell(46).setCellValue(seriesDataObj.getRjnwText());
+                row.createCell(47).setCellValue(seriesDataObj.getRnlfCode());
+                row.createCell(48).setCellValue(seriesDataObj.getRnlfText());
+                row.createCell(49).setCellValue(seriesDataObj.getRwnsCode());
+                row.createCell(50).setCellValue(seriesDataObj.getRwnsText());
+                row.createCell(51).setCellValue(seriesDataObj.getSeekCode());
+                row.createCell(52).setCellValue(seriesDataObj.getSeekText());
+                row.createCell(53).setCellValue(seriesDataObj.getSexsCode());
+                row.createCell(54).setCellValue(seriesDataObj.getSexsText());
+                row.createCell(55).setCellValue(seriesDataObj.getTdatCode());
+                row.createCell(56).setCellValue(seriesDataObj.getTdatText());
+                row.createCell(57).setCellValue(seriesDataObj.getVetsCode());
+                row.createCell(58).setCellValue(seriesDataObj.getVetsText());
+                row.createCell(59).setCellValue(seriesDataObj.getWkstCode());
+                row.createCell(60).setCellValue(seriesDataObj.getWkstText());
+                row.createCell(61).setCellValue(seriesDataObj.getBornCode());
+                row.createCell(62).setCellValue(seriesDataObj.getBornText());
+                row.createCell(63).setCellValue(seriesDataObj.getChldCode());
+                row.createCell(64).setCellValue(seriesDataObj.getChldText());
+                row.createCell(65).setCellValue(seriesDataObj.getDisaCode());
+                row.createCell(66).setCellValue(seriesDataObj.getDisaText());
                 row.createCell(67).setCellValue(seriesDataObj.getSeasonal());
-                row.createCell(68).setCellValue(seriesDataObj.getSeasonal_text());
-                row.createCell(69).setCellValue(seriesDataObj.getFootnote_codes());
-                row.createCell(70).setCellValue(seriesDataObj.getBegin_year());
-                row.createCell(71).setCellValue(seriesDataObj.getBegin_period());
-                row.createCell(72).setCellValue(seriesDataObj.getEnd_year());
-                row.createCell(73).setCellValue(seriesDataObj.getEnd_period());
+                row.createCell(68).setCellValue(seriesDataObj.getSeasonalText());
+                row.createCell(69).setCellValue(seriesDataObj.getFootnoteCodes());
+                row.createCell(70).setCellValue(seriesDataObj.getBeginYear());
+                row.createCell(71).setCellValue(seriesDataObj.getBeginPeriod());
+                row.createCell(72).setCellValue(seriesDataObj.getEndYear());
+                row.createCell(73).setCellValue(seriesDataObj.getEndPeriod());
                 row.createCell(74).setCellValue(year);
 
                 // Dynamic monthly data
@@ -152,7 +152,6 @@ public class ln_excel_writer {
     public static void createHeaders(Sheet sheet) {
         // Create headers
         Row header = sheet.createRow(0);
-
         header.createCell(0).setCellValue("Series id");
         header.createCell(1).setCellValue("Lfst code");
         header.createCell(2).setCellValue("Periodicity code");
@@ -229,18 +228,18 @@ public class ln_excel_writer {
         header.createCell(73).setCellValue("End period");
         header.createCell(74).setCellValue("Year");
         header.createCell(75).setCellValue("Period");
-        header.createCell(76).setCellValue("1");
-        header.createCell(77).setCellValue("2");
-        header.createCell(79).setCellValue("3");
-        header.createCell(79).setCellValue("4");
-        header.createCell(80).setCellValue("5");
-        header.createCell(81).setCellValue("6");
-        header.createCell(82).setCellValue("7");
-        header.createCell(83).setCellValue("8");
-        header.createCell(84).setCellValue("9");
-        header.createCell(85).setCellValue("10");
-        header.createCell(86).setCellValue("11");
-        header.createCell(87).setCellValue("12");
+        header.createCell(76).setCellValue("period_1");
+        header.createCell(77).setCellValue("period_2");
+        header.createCell(79).setCellValue("period_3");
+        header.createCell(79).setCellValue("period_4");
+        header.createCell(80).setCellValue("period_5");
+        header.createCell(81).setCellValue("period_6");
+        header.createCell(82).setCellValue("period_7");
+        header.createCell(83).setCellValue("period_8");
+        header.createCell(84).setCellValue("period_9");
+        header.createCell(85).setCellValue("period_10");
+        header.createCell(86).setCellValue("period_11");
+        header.createCell(87).setCellValue("period_12");
 
     }
 

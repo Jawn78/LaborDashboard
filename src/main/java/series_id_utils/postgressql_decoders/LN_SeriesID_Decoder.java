@@ -1,5 +1,5 @@
 package series_id_utils.postgressql_decoders;
-import data_models.BLS_Data_Models.LNSeriesIDData;
+import data_models.BLS_Data_Models.lnSeriesIDData;
 import data_models.Config_Models.ConfigPOJO;
 
 import java.sql.Connection;
@@ -8,114 +8,31 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static util.Config.Manager.getConfig;
+import static util.config.Manager.getConfig;
 
 
 public class LN_SeriesID_Decoder {
 
-    public static LNSeriesIDData main(String seriesIdToFind) {
-        LNSeriesIDData data = null;
+    static {
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             System.exit(1);
         }
+    }
 
+    public static lnSeriesIDData decodeSeriesID(String seriesIdToFind) {
+        lnSeriesIDData data = null;
         ConfigPOJO appConfig = getConfig();
 
-        try (Connection conn = DriverManager.getConnection(appConfig.getPostgreSQLConfig().getUrl(), appConfig.getPostgreSQLConfig().getUser(), appConfig.getPostgreSQLConfig().getPassword());
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM ln_decoder_file WHERE TRIM(series_id) = TRIM(?)")) {
-            stmt.setString(1, seriesIdToFind); // Set the series_id parameter in the SQL query
-            ResultSet rs = stmt.executeQuery();
+        try (Connection conn = getConnection(appConfig);
+             PreparedStatement stmt = createPreparedStatement(conn, seriesIdToFind);
+             ResultSet resultSet = stmt.executeQuery()) {
 
-            // Process the ResultSet
-            if (rs.next()) {  // Check if there is at least one result
-
-                data = new LNSeriesIDData();
-
-                data.setSeries_id(rs.getString("series_id"));
-                data.setLfst_code(rs.getString("lfst_code"));
-                data.setPeriodicity_code(rs.getString("periodicity_code"));
-                data.setPeriodicity_text(rs.getString("periodicity_text"));
-                data.setSeries_title(rs.getString("series_title"));
-                data.setAbsn_code(rs.getString("absn_code"));
-                data.setAbsn_text(rs.getString("absn_text"));
-                data.setActivity_code(rs.getString("activity_code"));
-                data.setActivity_text(rs.getString("activity_text"));
-                data.setAges_code(rs.getString("ages_code"));
-                data.setAges_text(rs.getString("ages_text"));
-                data.setCert_code(rs.getString("cert_code"));
-                data.setCert_text(rs.getString("cert_text"));
-                data.setClass_code(rs.getString("class_code"));
-                data.setClass_text(rs.getString("class_text"));
-                data.setDuration_code(rs.getString("duration_code"));
-                data.setDuration_text(rs.getString("duration_text"));
-                data.setEducation_code(rs.getString("education_code"));
-                data.setEducation_text(rs.getString("education_text"));
-                data.setEntr_code(rs.getString("entr_code"));
-                data.setEntr_text(rs.getString("entr_text"));
-                data.setExpr_code(rs.getString("expr_code"));
-                data.setExpr_text(rs.getString("expr_text"));
-                data.setHheader_code(rs.getString("hheader_code"));
-                data.setHheader_text(rs.getString("hheader_text"));
-                data.setHour_code(rs.getString("hour_code"));
-                data.setHour_text(rs.getString("hour_text"));
-                data.setIndy_code(rs.getString("indy_code"));
-                data.setIndy_text(rs.getString("indy_text"));
-                data.setJdes_code(rs.getString("jdes_code"));
-                data.setJdes_text(rs.getString("jdes_text"));
-                data.setLook_code(rs.getString("look_code"));
-                data.setLook_text(rs.getString("look_text"));
-                data.setMari_code(rs.getString("mari_code"));
-                data.setMari_text(rs.getString("mari_text"));
-                data.setMjhs_code(rs.getString("mjhs_code"));
-                data.setMjhs_text(rs.getString("mjhs_text"));
-                data.setOccupation_code(rs.getString("occupation_code"));
-                data.setOccupation_text(rs.getString("occupation_text"));
-                data.setOrig_code(rs.getString("orig_code"));
-                data.setOrig_text(rs.getString("orig_text"));
-                data.setPcts_code(rs.getString("pcts_code"));
-                data.setPcts_text(rs.getString("pcts_text"));
-                data.setRace_code(rs.getString("race_code"));
-                data.setRace_text(rs.getString("race_text"));
-                data.setRjnw_code(rs.getString("rjnw_code"));
-                data.setRjnw_text(rs.getString("rjnw_text"));
-                data.setRnlf_code(rs.getString("rnlf_code"));
-                data.setRnlf_text(rs.getString("rnlf_text"));
-                data.setRwns_code(rs.getString("rwns_code"));
-                data.setRwns_text(rs.getString("rwns_text"));
-                data.setSeek_code(rs.getString("seek_code"));
-                data.setSeek_text(rs.getString("seek_text"));
-                data.setSexs_code(rs.getString("sexs_code"));
-                data.setSexs_text(rs.getString("sexs_text"));
-                data.setTdat_code(rs.getString("tdat_code"));
-                data.setTdat_text(rs.getString("tdat_text"));
-                data.setVets_code(rs.getString("vets_code"));
-                data.setVets_text(rs.getString("vets_text"));
-                data.setWkst_code(rs.getString("wkst_code"));
-                data.setWkst_text(rs.getString("wkst_text"));
-                data.setBorn_code(rs.getString("born_code"));
-                data.setBorn_text(rs.getString("born_text"));
-                data.setChld_code(rs.getString("chld_code"));
-                data.setChld_text(rs.getString("chld_text"));
-                data.setDisa_code(rs.getString("disa_code"));
-                data.setDisa_text(rs.getString("disa_text"));
-                data.setSeasonal(rs.getString("seasonal"));
-                data.setSeasonal_text(rs.getString("seasonal_text"));
-                data.setFootnote_codes(rs.getString("footnote_codes"));
-                data.setBegin_year(rs.getString("begin_year"));
-                data.setBegin_period(rs.getString("begin_period"));
-                data.setEnd_year(rs.getString("end_year"));
-                data.setEnd_period(rs.getString("end_period"));
-
-                // Print out each column or use it as needed
-                System.out.println("Series ID: " +  data.getSeries_id());
-                System.out.println("LFST Code: " + data.getLfst_code());
-                System.out.println("Periodicity Text: " + data.getPeriodicity_text());
-                // Continue printing other fields
-
-               
+            if (resultSet.next()) {
+                data = mapResultSetToData(resultSet);
+                System.out.println("Retrieved data for Series ID: " + data.getSeriesId());
             } else {
                 System.out.println("No records found matching the series ID.");
             }
@@ -125,4 +42,208 @@ public class LN_SeriesID_Decoder {
 
         return data;
     }
+
+    private static Connection getConnection(ConfigPOJO appConfig) throws SQLException {
+        return DriverManager.getConnection(
+                appConfig.getPostgreSQLConfig().getUrl(),
+                appConfig.getPostgreSQLConfig().getUser(),
+                appConfig.getPostgreSQLConfig().getPassword()
+        );
+    }
+
+    private static PreparedStatement createPreparedStatement(Connection conn, String seriesIdToFind) throws SQLException {
+        String query = "SELECT * FROM ln_decoder_file WHERE TRIM(series_id) = TRIM(?)";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, seriesIdToFind);
+        return stmt;
+    }
+
+    private static lnSeriesIDData mapResultSetToData(ResultSet resultSet) throws SQLException {
+        lnSeriesIDData data = new lnSeriesIDData();
+        data.setSeriesId(resultSet.getString("series_id"));
+        data.setLfstCode(resultSet.getString("lfstCode"));
+        data.setPeriodicityCode(resultSet.getString("periodicityCode"));
+        data.setPeriodicityText(resultSet.getString("periodicityText"));
+        data.setSeriesTitle(resultSet.getString("seriesTitle"));
+        data.setAbsnCode(resultSet.getString("absnCode"));
+        data.setAbsnText(resultSet.getString("absnText"));
+        data.setActivityCode(resultSet.getString("activityCode"));
+        data.setActivityText(resultSet.getString("activityText"));
+        data.setAgesCode(resultSet.getString("agesCode"));
+        data.setAgesText(resultSet.getString("agesText"));
+        data.setCertCode(resultSet.getString("certCode"));
+        data.setCertText(resultSet.getString("certText"));
+        data.setClassCode(resultSet.getString("classCode"));
+        data.setClassText(resultSet.getString("classText"));
+        data.setDurationCode(resultSet.getString("durationCode"));
+        data.setDurationText(resultSet.getString("durationText"));
+        data.setEducationCode(resultSet.getString("educationCode"));
+        data.setEducationText(resultSet.getString("educationText"));
+        data.setEntrCode(resultSet.getString("entrCode"));
+        data.setEntrText(resultSet.getString("entrText"));
+        data.setExprCode(resultSet.getString("exprCode"));
+        data.setExprText(resultSet.getString("exprText"));
+        data.setHheaderCode(resultSet.getString("hheaderCode"));
+        data.setHheaderText(resultSet.getString("hheaderText"));
+        data.setHourCode(resultSet.getString("hourCode"));
+        data.setHourText(resultSet.getString("hourText"));
+        data.setIndyCode(resultSet.getString("indyCode"));
+        data.setIndyText(resultSet.getString("indyText"));
+        data.setJdesCode(resultSet.getString("jdesCode"));
+        data.setJdesText(resultSet.getString("jdesText"));
+        data.setLookCode(resultSet.getString("lookCode"));
+        data.setLookText(resultSet.getString("lookText"));
+        data.setMariCode(resultSet.getString("mariCode"));
+        data.setMariText(resultSet.getString("mariText"));
+        data.setMjhsCode(resultSet.getString("mjhsCode"));
+        data.setMjhsText(resultSet.getString("mjhsText"));
+        data.setOccupationCode(resultSet.getString("occupationCode"));
+        data.setOccupationText(resultSet.getString("occupationText"));
+        data.setOrigCode(resultSet.getString("origCode"));
+        data.setOrigText(resultSet.getString("origText"));
+        data.setPctsCode(resultSet.getString("pctsCode"));
+        data.setPctsText(resultSet.getString("pctsText"));
+        data.setRaceCode(resultSet.getString("raceCode"));
+        data.setRaceText(resultSet.getString("raceText"));
+        data.setRjnwCode(resultSet.getString("rjnwCode"));
+        data.setRjnwText(resultSet.getString("rjnwText"));
+        data.setRnlfCode(resultSet.getString("rnlfCode"));
+        data.setRnlfText(resultSet.getString("rnlfText"));
+        data.setRwnsCode(resultSet.getString("rwnsCode"));
+        data.setRwnsText(resultSet.getString("rwnsText"));
+        data.setSeekCode(resultSet.getString("seekCode"));
+        data.setSeekText(resultSet.getString("seekText"));
+        data.setSexsCode(resultSet.getString("sexsCode"));
+        data.setSexsText(resultSet.getString("sexsText"));
+        data.setTdatCode(resultSet.getString("tdatCode"));
+        data.setTdatText(resultSet.getString("tdatText"));
+        data.setVetsCode(resultSet.getString("vetsCode"));
+        data.setVetsText(resultSet.getString("vetsText"));
+        data.setWkstCode(resultSet.getString("wkstCode"));
+        data.setWkstText(resultSet.getString("wkstText"));
+        data.setBornCode(resultSet.getString("bornCode"));
+        data.setBornText(resultSet.getString("bornText"));
+        data.setChldCode(resultSet.getString("chldCode"));
+        data.setChldText(resultSet.getString("chldText"));
+        data.setDisaCode(resultSet.getString("disaCode"));
+        data.setDisaText(resultSet.getString("disaText"));
+        data.setSeasonal(resultSet.getString("seasonal"));
+        data.setSeasonalText(resultSet.getString("seasonalText"));
+        data.setFootnoteCodes(resultSet.getString("footnoteCodes"));
+        data.setBeginYear(resultSet.getString("begin_year"));
+        data.setBeginPeriod(resultSet.getString("begin_period"));
+        data.setEndYear(resultSet.getString("end_year"));
+        data.setEndPeriod(resultSet.getString("end_period"));
+        return data;
+    }
 }
+//    public static lnSeriesIDData main(String seriesIdToFind) {
+//        lnSeriesIDData data = null;
+//        try {
+//            Class.forName("org.postgresql.Driver");
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//            System.exit(1);
+//        }
+//
+//        ConfigPOJO appConfig = getConfig();
+//
+//        try (Connection conn = DriverManager.getConnection(appConfig.getPostgreSQLConfig().getUrl(), appConfig.getPostgreSQLConfig().getUser(), appConfig.getPostgreSQLConfig().getPassword());
+//             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM ln_decoder_file WHERE TRIM(series_id) = TRIM(?)")) {
+//            stmt.setString(1, seriesIdToFind); // Set the series_id parameter in the SQL query
+//            ResultSet resultSet = stmt.executeQuery();
+//
+//            // Process the ResultSet
+//            if (resultSet.next()) {  // Check if there is at least one result
+//
+//                data = new lnSeriesIDData();
+//
+//                data.setSeries_id(resultSet.getString("series_id"));
+//                data.setLfstCode(resultSet.getString("lfstCode"));
+//                data.setPeriodicityCode(resultSet.getString("periodicityCode"));
+//                data.setPeriodicityText(resultSet.getString("periodicityText"));
+//                data.setSeriesTitle(resultSet.getString("seriesTitle"));
+//                data.setAbsnCode(resultSet.getString("absnCode"));
+//                data.setAbsnText(resultSet.getString("absnText"));
+//                data.setActivityCode(resultSet.getString("activityCode"));
+//                data.setActivityText(resultSet.getString("activityText"));
+//                data.setAgesCode(resultSet.getString("agesCode"));
+//                data.setAgesText(resultSet.getString("agesText"));
+//                data.setCertCode(resultSet.getString("certCode"));
+//                data.setCertText(resultSet.getString("certText"));
+//                data.setClassCode(resultSet.getString("classCode"));
+//                data.setClassText(resultSet.getString("classText"));
+//                data.setDurationCode(resultSet.getString("durationCode"));
+//                data.setDurationText(resultSet.getString("durationText"));
+//                data.setEducationCode(resultSet.getString("educationCode"));
+//                data.setEducationText(resultSet.getString("educationText"));
+//                data.setEntrCode(resultSet.getString("entrCode"));
+//                data.setEntrText(resultSet.getString("entrText"));
+//                data.setExprCode(resultSet.getString("exprCode"));
+//                data.setExprText(resultSet.getString("exprText"));
+//                data.setHheaderCode(resultSet.getString("hheaderCode"));
+//                data.setHheaderText(resultSet.getString("hheaderText"));
+//                data.setHourCode(resultSet.getString("hourCode"));
+//                data.setHourText(resultSet.getString("hourText"));
+//                data.setIndyCode(resultSet.getString("indyCode"));
+//                data.setIndyText(resultSet.getString("indyText"));
+//                data.setJdesCode(resultSet.getString("jdesCode"));
+//                data.setJdesText(resultSet.getString("jdesText"));
+//                data.setLookCode(resultSet.getString("lookCode"));
+//                data.setLookText(resultSet.getString("lookText"));
+//                data.setMariCode(resultSet.getString("mariCode"));
+//                data.setMariText(resultSet.getString("mariText"));
+//                data.setMjhsCode(resultSet.getString("mjhsCode"));
+//                data.setMjhsText(resultSet.getString("mjhsText"));
+//                data.setOccupationCode(resultSet.getString("occupationCode"));
+//                data.setOccupationText(resultSet.getString("occupationText"));
+//                data.setOrigCode(resultSet.getString("origCode"));
+//                data.setOrigText(resultSet.getString("origText"));
+//                data.setPctsCode(resultSet.getString("pctsCode"));
+//                data.setPctsText(resultSet.getString("pctsText"));
+//                data.setRaceCode(resultSet.getString("raceCode"));
+//                data.setRaceText(resultSet.getString("raceText"));
+//                data.setRjnwCode(resultSet.getString("rjnwCode"));
+//                data.setRjnwText(resultSet.getString("rjnwText"));
+//                data.setRnlfCode(resultSet.getString("rnlfCode"));
+//                data.setRnlfText(resultSet.getString("rnlfText"));
+//                data.setRwnsCode(resultSet.getString("rwnsCode"));
+//                data.setRwnsText(resultSet.getString("rwnsText"));
+//                data.setSeekCode(resultSet.getString("seekCode"));
+//                data.setSeekText(resultSet.getString("seekText"));
+//                data.setSexsCode(resultSet.getString("sexsCode"));
+//                data.setSexsText(resultSet.getString("sexsText"));
+//                data.setTdatCode(resultSet.getString("tdatCode"));
+//                data.setTdatText(resultSet.getString("tdatText"));
+//                data.setVetsCode(resultSet.getString("vetsCode"));
+//                data.setVetsText(resultSet.getString("vetsText"));
+//                data.setWkstCode(resultSet.getString("wkstCode"));
+//                data.setWkstText(resultSet.getString("wkstText"));
+//                data.setBornCode(resultSet.getString("bornCode"));
+//                data.setBornText(resultSet.getString("bornText"));
+//                data.setChldCode(resultSet.getString("chldCode"));
+//                data.setChldText(resultSet.getString("chldText"));
+//                data.setDisaCode(resultSet.getString("disaCode"));
+//                data.setDisaText(resultSet.getString("disaText"));
+//                data.setSeasonal(resultSet.getString("seasonal"));
+//                data.setSeasonalText(resultSet.getString("seasonalText"));
+//                data.setFootnoteCodes(resultSet.getString("footnoteCodes"));
+//                data.setBegin_year(resultSet.getString("begin_year"));
+//                data.setBegin_period(resultSet.getString("begin_period"));
+//                data.setEnd_year(resultSet.getString("end_year"));
+//                data.setEnd_period(resultSet.getString("end_period"));
+//
+//                // Print out each column or use it as needed
+//                System.out.println("Retrieved data for Series ID: " +  data.getSeries_id());
+//
+//
+//            } else {
+//                System.out.println("No records found matching the series ID.");
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return data;
+//    }
+//}

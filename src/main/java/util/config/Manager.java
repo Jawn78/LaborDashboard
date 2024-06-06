@@ -1,4 +1,4 @@
-package util.Config;
+package util.config;
 
 import com.google.gson.Gson;
 import data_models.Config_Models.ConfigPOJO;
@@ -34,6 +34,7 @@ public class Manager {
     }
 
     public static boolean testDatabaseConnection() {
+
         if (!appConfig.getUsePostgreSQL()) {
             System.out.println("PostgreSQL usage is disabled.");
             return false;

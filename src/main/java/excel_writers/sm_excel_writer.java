@@ -101,18 +101,18 @@ public class sm_excel_writer {
         header.createCell(12).setCellValue("Data Type");
         header.createCell(13).setCellValue("Year");
         header.createCell(14).setCellValue("Period");
-        header.createCell(15).setCellValue("1");
-        header.createCell(16).setCellValue("2");
-        header.createCell(17).setCellValue("3");
-        header.createCell(18).setCellValue("4");
-        header.createCell(19).setCellValue("5");
-        header.createCell(20).setCellValue("6");
-        header.createCell(21).setCellValue("7");
-        header.createCell(22).setCellValue("8");
-        header.createCell(23).setCellValue("9");
-        header.createCell(24).setCellValue("10");
-        header.createCell(25).setCellValue("11");
-        header.createCell(26).setCellValue("12");
+        header.createCell(15).setCellValue("period_1");
+        header.createCell(16).setCellValue("period_2");
+        header.createCell(17).setCellValue("period_3");
+        header.createCell(18).setCellValue("period_4");
+        header.createCell(19).setCellValue("period_5");
+        header.createCell(20).setCellValue("period_6");
+        header.createCell(21).setCellValue("period_7");
+        header.createCell(22).setCellValue("period_8");
+        header.createCell(23).setCellValue("period_9");
+        header.createCell(24).setCellValue("period_10");
+        header.createCell(25).setCellValue("period_11");
+        header.createCell(26).setCellValue("period_12");
 
     }
 
