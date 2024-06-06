@@ -1,0 +1,9 @@
+{
+  "BLSApiKey": "ef90111696de4045bf7c647d41cee652",
+  "UsePostgreSQL": true,
+  "PostgreSQLConfig": {
+    "url": "jdbc:postgresql://192.168.50.214/bls_db",
+    "user": "blsuser",
+    "password": "P@$$w0rd"
+  }
+}
