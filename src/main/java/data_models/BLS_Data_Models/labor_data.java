@@ -1,73 +1,87 @@
 package data_models.BLS_Data_Models;
 
-
 import data_models.BLS_API_Models.Datum;
 import data_models.BLS_API_Models.Series;
 import jakarta.persistence.*;
-import org.apache.poi.ss.usermodel.Row;
-import series_id_utils.exel_decoders.LN_Decoder;
-import series_id_utils.postgressql_decoders.LN_SeriesID_Decoder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static series_id_utils.exel_decoders.LN_Decoder.loadSeriesData;
-
 @Entity
-@Table(name = "ln_labor_data")
+@SqlResultSetMapping(
+        name = "LaborDataMapping",
+        entities = @EntityResult(
+                entityClass = labor_data.class,
+                fields = {
+                        @FieldResult(name = "seriesId", column = "series_id"),
+                        @FieldResult(name = "year", column = "year"),
+                        @FieldResult(name = "period", column = "period"),
+                        @FieldResult(name = "period1", column = "period_1"),
+                        @FieldResult(name = "period2", column = "period_2"),
+                        @FieldResult(name = "period3", column = "period_3"),
+                        @FieldResult(name = "period4", column = "period_4"),
+                        @FieldResult(name = "period5", column = "period_5"),
+                        @FieldResult(name = "period6", column = "period_6"),
+                        @FieldResult(name = "period7", column = "period_7"),
+                        @FieldResult(name = "period8", column = "period_8"),
+                        @FieldResult(name = "period9", column = "period_9"),
+                        @FieldResult(name = "period10", column = "period_10"),
+                        @FieldResult(name = "period11", column = "period_11"),
+                        @FieldResult(name = "period12", column = "period_12")
+                }
+        )
+)
+@NamedNativeQuery(
+        name = "LaborData.findBySeriesIdAndYearRange",
+        query = "SELECT series_id, year, period, period_1, period_2, period_3, period_4, period_5, period_6, period_7, period_8, period_9, period_10, period_11, period_12 "
+                + "FROM sm_labor_data "
+                + "WHERE TRIM(series_id) = :seriesId AND year BETWEEN :startYear AND :endYear",
+        resultSetMapping = "LaborDataMapping"
+)
 public class labor_data {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // This will auto-generate the ID if you use a database that supports auto-increment
-
-    @Column(name = "series_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String seriesId;
-
-    @Column(name = "year")
     private Long year;
-
-    @Column(name = "period")
     private String period;
-
-    @Column(name = "period_1")
     private String period1;
-
-    @Column(name = "period_2")
     private String period2;
-
-    @Column(name = "period_3")
     private String period3;
-
-    @Column(name = "period_4")
     private String period4;
-
-    @Column(name = "period_5")
     private String period5;
-
-    @Column(name = "period_6")
     private String period6;
-
-    @Column(name = "period_7")
     private String period7;
-
-    @Column(name = "period_8")
     private String period8;
-
-    @Column(name = "period_9")
     private String period9;
-
-    @Column(name = "period_10")
     private String period10;
-
-    @Column(name = "period_11")
     private String period11;
-
-    @Column(name = "period_12")
     private String period12;
 
-    public labor_data() {
+    // Default constructor
+    public labor_data() {}
 
+    // Constructor with all fields
+    public labor_data(String seriesId, Long year, String period, String period1, String period2,
+                      String period3, String period4, String period5, String period6, String period7,
+                      String period8, String period9, String period10, String period11, String period12) {
+        this.seriesId = seriesId;
+        this.year = year;
+        this.period = period;
+        this.period1 = period1;
+        this.period2 = period2;
+        this.period3 = period3;
+        this.period4 = period4;
+        this.period5 = period5;
+        this.period6 = period6;
+        this.period7 = period7;
+        this.period8 = period8;
+        this.period9 = period9;
+        this.period10 = period10;
+        this.period11 = period11;
+        this.period12 = period12;
     }
 
     public String getSeriesId() {
