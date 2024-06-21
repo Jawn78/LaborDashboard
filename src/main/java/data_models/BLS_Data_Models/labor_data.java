@@ -16,7 +16,7 @@ import java.util.Map;
 import static series_id_utils.exel_decoders.LN_Decoder.loadSeriesData;
 
 @Entity
-@Table(name = "ln_labor_data")
+@Table(name = "labor_data")
 public class labor_data {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // This will auto-generate the ID if you use a database that supports auto-increment

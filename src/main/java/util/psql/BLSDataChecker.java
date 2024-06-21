@@ -17,7 +17,7 @@ import static util.psql.BLSDataChecker.DatabaseHelper.checkForNullPeriods;
 public class BLSDataChecker {
 
     public static void main(String[] args) throws SQLException {
-        String seriedID = "SMS56000000000000001";
+        String seriedID = "LNU00000062";
         int startYear = 2020;
         int endYear = 2024;
          new DatabaseHelper();
@@ -146,13 +146,11 @@ public class BLSDataChecker {
         }
 
         private static void updateSeriesData(String seriesID, long year, Map<String, String> periodValues) throws SQLException {
-//        String dbPrefix = "sm";
-//            String query = "UPDATE "+ dbPrefix + "_labor_data SET period_1 = ?, period_2 = ?, period_3 = ?, period_4 = ?, period_5 = ?, " +
-//                    "period_6 = ?, period_7 = ?, period_8 = ?, period_9 = ?, period_10 = ?, period_11 = ?, period_12 = ? WHERE series_id = ? AND year = ?";
+
 
             String query = "SELECT series_id, year, period, period_1, period_2, period_3, period_4, period_5, " +
                     "period_6, period_7, period_8, period_9, period_10, period_11, period_12 " +
-                    "FROM sm_labor_data WHERE TRIM(series_id) = ? AND year BETWEEN ? AND ?";
+                    "FROM labor_data WHERE TRIM(series_id) = ? AND year BETWEEN ? AND ?";
             try (Connection conn = getConnection();
                  PreparedStatement stmt = conn.prepareStatement(query)) {
                 for (int i = 1; i <= 12; i++) {
