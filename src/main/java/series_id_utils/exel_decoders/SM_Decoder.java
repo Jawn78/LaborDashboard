@@ -11,7 +11,7 @@ import java.util.Map;
 public class SM_Decoder {
     public static void main(String[] args) throws Exception {
         // Load the Excel File
-        FileInputStream file = new FileInputStream("src/main/java/decoder_files/smu_decoder_file.xlsx");
+        FileInputStream file = new FileInputStream("src/main/java/decoder_files/sm_decoder_file.xlsx");
         Workbook workbook = new XSSFWorkbook(file);
         Sheet sheet = workbook.getSheetAt(0);
 

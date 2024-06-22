@@ -7,156 +7,172 @@ import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 public class SeriesIDDecoder {
 
+    public static DecoderModel loadModelsWithID(String SeriesID) {
+        String filePath = getFilePathPrefix(SeriesID);
+        DecoderModel model = loadModelsWithPath(filePath);
+        model.setPrefix(SeriesID.substring(0, 2).toLowerCase(Locale.ROOT));
+        return model;
+    }
 
-
-        public SeriesIDDecoder(String filePath) {
-            DecoderModel model = loadModels(filePath);
-        }
-
-        private static DecoderModel loadModels(String filePath) {
-            DecoderModel model = new DecoderModel();
-            try (FileInputStream fis = new FileInputStream(filePath);
-                Workbook workbook = WorkbookFactory.create(fis)) {
-                Sheet formatSheet = workbook.getSheetAt(0); // Assuming this is the correct sheet index
-                Sheet compositeDecoderSheet = workbook.getSheetAt(1);
-                Iterator<Row> rowIterator = formatSheet.iterator();
-
-                if (rowIterator.hasNext()) rowIterator.next(); // Skip the header row
-                while (rowIterator.hasNext()) {
-                    Row row = rowIterator.next();
-                    DecoderModelParts modelParts = new DecoderModelParts();
-
-                    String partNumberStr = getCellValue(row.getCell(0));
-                    if (isNumeric(partNumberStr)) {
-                        modelParts.setPart_number(Integer.parseInt(partNumberStr));
-                        modelParts.setIdentifier(getCellValue(row.getCell(1)));
-                        modelParts.setStart_position(Integer.parseInt(getCellValue(row.getCell(2))));
-                        modelParts.setEnd_position(Integer.parseInt(getCellValue(row.getCell(3))));
-                        model.addDecoderModelParts(modelParts); // Append or set parts based on the design decision
-                    }
-                }
-                model.setPrefix("sm");
-//              model.setKeypairs(columns(compositeDecoderSheet));
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return model;
-        }
-
-        private static boolean isNumeric(String strNum) {
-            if (strNum == null) {
-                return false;
-            }
-            try {
-                Double.parseDouble(strNum);
-                return true;
-            } catch (NumberFormatException nfe) {
-                return false;
-            }
-        }
-
-        private static String getCellValue(Cell cell) {
-            if (cell == null) return "";
-            switch (cell.getCellType()) {
-                case STRING:
-                    return cell.getStringCellValue();
-                case NUMERIC:
-                    if (DateUtil.isCellDateFormatted(cell)) {
-                        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-                        return sdf.format(cell.getDateCellValue());
-                    } else {
-                        return new java.text.DecimalFormat("0").format(cell.getNumericCellValue());
-                    }
-                case BOOLEAN:
-                    return String.valueOf(cell.getBooleanCellValue());
-                case BLANK:
-                    return "";
-                default:
-                    return "";
-            }
-        }
-        public static List<List<KeyPair>> columns(Sheet sheet) {
-            List<List<KeyPair>> columns = new ArrayList<>();
-
-            Iterator<Row> rowIterator = sheet.iterator();
-
+    public static DecoderModel loadModelsWithPath(String filePath) {
+        DecoderModel model = new DecoderModel();
+        int partNumber = 1;
+        try (FileInputStream fis = new FileInputStream(filePath);
+             Workbook workbook = WorkbookFactory.create(fis)) {
+            Sheet formatStructureSheet = workbook.getSheetAt(0); // Assuming this is the correct sheet index
+            Sheet compositeDecodeSheet = workbook.getSheetAt(1);
+            Iterator<Row> rowIterator = formatStructureSheet.iterator();
             if (rowIterator.hasNext()) {
                 rowIterator.next(); // Skip the header row
             }
-
-            int numCols = sheet.getRow(0).getLastCellNum();
-            for (int i = 0; i < numCols; i += 2) {
-                columns.add(new ArrayList<>());
-            }
-
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
-                for (int colIndex = 0; colIndex < numCols; colIndex += 2) {
-                    if (colIndex + 1 < numCols) {
-                        Cell keyCell = row.getCell(colIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                        Cell valueCell = row.getCell(colIndex + 1, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                        String key = getCellValue(keyCell);
-                        String value = getCellValue(valueCell);
 
-                        if (key != null && !key.isEmpty() && value != null && !value.isEmpty()) {
-                            columns.get(colIndex / 2).add(new KeyPair(key, value));
-                        }
+                DecoderModelParts modelParts = new DecoderModelParts();
+
+                String partNumberStr = getCellValue(row.getCell(0)); // Assuming part number is in the first cell
+                System.out.println(partNumberStr);
+                modelParts.setIdentifier(partNumberStr); // Set the identifier as the key name from the table
+
+                // Parse the start and end positions
+                String startPositionStr = getCellValue(row.getCell(1));
+                String endPositionStr = getCellValue(row.getCell(2));
+
+                if (isNumeric(startPositionStr) && isNumeric(endPositionStr)) {
+                    int startPosition = Integer.parseInt(startPositionStr);
+                    int endPosition = Integer.parseInt(endPositionStr);
+                    if (endPosition == 0) { // Special case handling if endPosition is 0
+                        endPosition = startPosition; // or some other logic as needed
+                    }
+                    modelParts.setStart_position(startPosition);
+                    modelParts.setEnd_position(endPosition);
+                }
+                modelParts.setPart_number(partNumber); // Increment identifier for each part
+                // Add parts to the model
+                model.addDecoderModelParts(modelParts);
+                partNumber++;
+            }
+            model.setPrefix(extractSeriesID(filePath));
+            loadKeyPairs(compositeDecodeSheet, model);
+
+        } catch (FileNotFoundException e) {
+            System.out.println("The file was not found at: " + filePath + " " + e);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return model;
+    }
+
+    //Check if the value is able to be parsed as an interger
+    private static boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            Integer.parseInt(strNum);
+            return true;
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+    }
+
+    private static String getCellValue(Cell cell) {
+        if (cell == null) return "";
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                    return sdf.format(cell.getDateCellValue());
+                } else {
+                    return new java.text.DecimalFormat("0").format(cell.getNumericCellValue());
+                }
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case BLANK:
+            default:
+                return "";
+        }
+    }
+
+    //Get KeyPair columns
+    public static List<List<KeyPair>> columns(Sheet sheet) {
+        List<List<KeyPair>> columns = new ArrayList<>();
+        Iterator<Row> rowIterator = sheet.iterator();
+
+        // Skip the header row
+        if (rowIterator.hasNext()) {
+            rowIterator.next();
+        }
+
+        int numCols = sheet.getRow(0).getLastCellNum();
+        for (int i = 0; i < numCols; i += 2) {
+            columns.add(new ArrayList<>());
+        }
+
+        while (rowIterator.hasNext()) {
+            Row row = rowIterator.next();
+            for (int colIndex = 0; colIndex < numCols; colIndex += 2) {
+                if (colIndex + 1 < numCols) {
+                    Cell keyCell = row.getCell(colIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                    Cell valueCell = row.getCell(colIndex + 1, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                    String key = getCellValue(keyCell);
+                    String value = getCellValue(valueCell);
+                    if (key != null && !key.isEmpty() && value != null && !value.isEmpty()) {
+                        columns.get(colIndex / 2).add(new KeyPair(key, value));
                     }
                 }
             }
-            return columns;
+        }
+        return columns;
+    }
+
+    public static DecoderModel loadKeyPairs(Sheet sheet, DecoderModel model) {
+        List<List<KeyPair>> hey = columns(sheet);
+        for (int i = 0; i <= hey.size(); i++) {
+            model.getDecoderModelParts().get(i).setKeypairs(hey.get(i));
         }
 
-//    static class DecoderModel{
-//        String prefix;
-//        DecoderModelParts decoderModelParts;
-//    }
-//
-//    static class DecoderModelParts {
-//        public int part_number;
-//        public String identifier;
-//        public int start_position;
-//        public int end_position;
-//        public List<List<KeyPair>> keypairs;
-//    }
-//
-//    static class KeyPair {
-//        String key;
-//        String value;
-//
-//        public KeyPair(String key, String value) {
-//            this.key = key;
-//            this.value = value;
-//        }
-//    }
+        return model;
+    }
+
+    public static String extractSeriesID(String filePath) {
+        // Base directory prefix
+        String basePrefix = "src/main/java/excel_decoder_files/";
+        // Suffix for the files
+        String suffix = "_decoder_file.xlsx";
+
+        // Check if the file path starts with the base prefix and ends with the suffix
+        if (filePath.startsWith(basePrefix) && filePath.endsWith(suffix)) {
+            // Calculate the start index of the series ID substring
+            int startIndex = basePrefix.length();
+            // Calculate the end index of the series ID substring
+            int endIndex = filePath.length() - suffix.length();
+            // Extract the series ID substring
+            return filePath.substring(startIndex, endIndex);
+        } else {
+            // If the file path format is incorrect, return an empty string or throw an exception
+            return ""; // or throw new IllegalArgumentException("Invalid file path format.");
+        }
+    }
+
+
+    public static String getFilePathPrefix(String SeriesID) {
+        String filePath = "src/main/java/excel_decoder_files/" + SeriesID.substring(0, 2).toLowerCase(Locale.ROOT) + "_decoder_file.xlsx";
+        return filePath;
+    }
 
     public static void main(String[] args) {
-//        try (FileInputStream fis = new FileInputStream("src/main/java/excel_decoder_files/smu_decoder_file.xlsx");
-//             Workbook workbook = WorkbookFactory.create(fis)) {
-//            Sheet formatSheet = workbook.getSheetAt(1);
-//
-//           }catch(Exception e){
-        DecoderModel model = loadModels("src/main/java/excel_decoder_files/smu_decoder_file.xlsx");
-        System.out.println(model.getDecoderModelParts().size());
-        System.out.println("Model Prefix: " + model.getPrefix());
-//        System.out.println(model.getKeypairs().get(0).get(0).getKey());
-//        System.out.println(model.getKeypairs().get(0).get(0).getValue());
-        System.out.println(model.getDecoderModelParts().size());
-        for(DecoderModelParts parts : model.getDecoderModelParts()){
-
-//                System.out.println("Part Number: " + part.getPart_number() +
-//                        ", Identifier: " + part.getIdentifier() +
-//                        ", Start Position: " + part.getStart_position() +
-//                        ", End Position: " + part.getEnd_position());
-
-
-        }
-        }
-        }
+        String SeriesID = "SMS01000000000000001";
+        DecoderModel model = loadModelsWithID(SeriesID);
+    }
+}
