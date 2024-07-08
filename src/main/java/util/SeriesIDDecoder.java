@@ -5,7 +5,6 @@ import data_models.Decoder_Models.DecoderModelParts;
 import data_models.Decoder_Models.KeyPair;
 import org.apache.poi.ss.usermodel.*;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -37,9 +36,10 @@ public class SeriesIDDecoder {
                 Row row = rowIterator.next();
 
                 DecoderModelParts modelParts = new DecoderModelParts();
+                modelParts.setKeypairs(new ArrayList<>()); // Initialize key pairs list
 
                 String partNumberStr = getCellValue(row.getCell(0)); // Assuming part number is in the first cell
-                System.out.println(partNumberStr);
+//                System.out.println(partNumberStr);
                 modelParts.setIdentifier(partNumberStr); // Set the identifier as the key name from the table
 
                 // Parse the start and end positions
@@ -71,7 +71,7 @@ public class SeriesIDDecoder {
         return model;
     }
 
-    //Check if the value is able to be parsed as an interger
+    // Check if the value is able to be parsed as an integer
     private static boolean isNumeric(String strNum) {
         if (strNum == null) {
             return false;
@@ -104,15 +104,15 @@ public class SeriesIDDecoder {
         }
     }
 
-    //Get KeyPair columns
+    // Get KeyPair columns
     public static List<List<KeyPair>> columns(Sheet sheet) {
         List<List<KeyPair>> columns = new ArrayList<>();
         Iterator<Row> rowIterator = sheet.iterator();
 
-        // Skip the header row
-        if (rowIterator.hasNext()) {
-            rowIterator.next();
-        }
+//        // Skip the header row
+//        if (rowIterator.hasNext()) {
+//            rowIterator.next();
+//        }
 
         int numCols = sheet.getRow(0).getLastCellNum();
         for (int i = 0; i < numCols; i += 2) {
@@ -137,9 +137,16 @@ public class SeriesIDDecoder {
     }
 
     public static DecoderModel loadKeyPairs(Sheet sheet, DecoderModel model) {
-        List<List<KeyPair>> hey = columns(sheet);
-        for (int i = 0; i <= hey.size(); i++) {
-            model.getDecoderModelParts().get(i).setKeypairs(hey.get(i));
+        List<List<KeyPair>> columnsPair = columns(sheet);
+        int modelPartIndex = 1; // Start from 1 to skip the "Prefix" part
+        for (int i = 0; i < columnsPair.size(); i++) {
+            List<KeyPair> keyPairs = columnsPair.get(i);
+            if (modelPartIndex < model.getDecoderModelParts().size()) {
+                model.getDecoderModelParts().get(modelPartIndex).setKeypairs(keyPairs);
+                modelPartIndex++;
+            } else {
+                System.out.println("Warning: Extra key pair column found in sheet, but no corresponding model part.");
+            }
         }
 
         return model;
@@ -165,14 +172,25 @@ public class SeriesIDDecoder {
         }
     }
 
-
     public static String getFilePathPrefix(String SeriesID) {
         String filePath = "src/main/java/excel_decoder_files/" + SeriesID.substring(0, 2).toLowerCase(Locale.ROOT) + "_decoder_file.xlsx";
         return filePath;
     }
 
     public static void main(String[] args) {
-        String SeriesID = "SMS01000000000000001";
-        DecoderModel model = loadModelsWithID(SeriesID);
+        String seriesID = "SMS01000000000000001";
+        DecoderModel model = loadModelsWithID(seriesID);
+        for (DecoderModelParts part : model.getDecoderModelParts()) {
+            int start = part.getStart_position() - 1; // Adjust for 0-based index
+            int end = part.getEnd_position() == 0 ? seriesID.length() : part.getEnd_position();
+            if (start < end && start < seriesID.length() && end <= seriesID.length()) {
+                String extractedPart = seriesID.substring(start, end);
+                System.out.println("For part " + part.getIdentifier() + " the size is " + part.getKeypairs().size());
+                // String decodedValue = decodePart(part.getKeypairs(), extractedPart);
+                // result.append(part.getIdentifier()).append(": ").append(decodedValue).append(", ");
+
+
+            }
+        }
     }
 }

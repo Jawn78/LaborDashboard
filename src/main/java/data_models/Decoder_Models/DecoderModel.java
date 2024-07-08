@@ -6,6 +6,7 @@ import java.util.List;
 
 public class DecoderModel {
     private String prefix;
+
     private List<DecoderModelParts> decoderModelParts = new ArrayList<>();
 
     public String getPrefix() {
@@ -24,5 +25,7 @@ public class DecoderModel {
         this.decoderModelParts.add(part);
     }
 
-
+    public void setDecoderModelParts(List<DecoderModelParts> decoderModelParts) {
+        this.decoderModelParts = decoderModelParts;
+    }
 }
