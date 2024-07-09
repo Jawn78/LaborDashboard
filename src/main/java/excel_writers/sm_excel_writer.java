@@ -112,7 +112,7 @@ public class sm_excel_writer {
         header.createCell(23).setCellValue("period_9");
         header.createCell(24).setCellValue("period_10");
         header.createCell(25).setCellValue("period_11");
-        header.createCell(26).setCellValue("period_12");
+        header.createCell(26).setCellValue("period_sm_excel_writer12");
 
     }
 

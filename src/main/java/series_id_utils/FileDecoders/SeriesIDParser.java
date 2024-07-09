@@ -24,11 +24,15 @@ public class SeriesIDParser {
         int length = key.length();
         for (KeyPair keyPair : keyPairs) {
             String getKey = keyPair.getKey();
-            while(getKey.length()< length){
-               getKey= "0"+getKey; // add leading zeros until correct length
-            }
             if (getKey.equals(key)) {
                 return keyPair.getValue();
+            } else {
+                while (getKey.length() < length) {
+                    getKey = "0" + getKey; // add leading zeros until correct length
+                }
+                if (getKey.equals(key)) {
+                    return keyPair.getValue();
+                }
             }
         }
         return "Key not found";
@@ -73,15 +77,16 @@ public class SeriesIDParser {
 
 
         public static void main(String[] args) {
-        String seriesID = "SMS01000000000000001";
+        String seriesID = "BDS0000000000000000110101LQ5";
         FileDecoderModel fileDecoderModel = fileDeocderModelBuilder(seriesID);
-        for(int i=0;i<fileDecoderModel.getModelParts().size();i++){
-            System.out.println("Value " + i + " : " + fileDecoderModel.ModelParts.get(i).getIDPartvalue());
-            System.out.println("Identifier " + i + " : " + fileDecoderModel.ModelParts.get(i).getIdentifier());
-            System.out.println("Header " + i + " : " + fileDecoderModel.ModelParts.get(i).getKeyHeader());
-            System.out.println("Part Value " + i + " : " + fileDecoderModel.ModelParts.get(i).getIDPartvalue());
-            System.out.print("Part Start " + i + " : " + fileDecoderModel.ModelParts.get(i).getStart()+"\n");
-            System.out.print("Part End: " + i + " : " + fileDecoderModel.ModelParts.get(i).getEnd()+"\n");
+            for (int i = 0; i < fileDecoderModel.getModelParts().size(); i++) {
+                System.out.println("Value " + i + " : " + fileDecoderModel.ModelParts.get(i).getIDPartvalue());
+                System.out.println("Identifier " + i + " : " + fileDecoderModel.ModelParts.get(i).getIdentifier());
+                System.out.println("Header " + i + " : " + fileDecoderModel.ModelParts.get(i).getKeyHeader());
+                System.out.println("Substring " + i + " : " + fileDecoderModel.ModelParts.get(i).getSubIDString());
+                System.out.println("Part Value " + i + " : " + fileDecoderModel.ModelParts.get(i).getIDPartvalue());
+                System.out.print("Part Start " + i + " : " + fileDecoderModel.ModelParts.get(i).getStart() + "\n");
+                System.out.print("Part End: " + i + " : " + fileDecoderModel.ModelParts.get(i).getEnd() + "\n");
             }
 
     }
